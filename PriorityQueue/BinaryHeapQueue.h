@@ -1,23 +1,12 @@
 #pragma once
 #include <functional>
-#include <sstream>
 
 namespace algs {
 	using namespace std;
 
-	template <bool, class T = void>
-	struct disable_if
-	{};
-
-	template <class T>
-	struct disable_if<false, T>
-	{
-		typedef T type;
-	};
-
 	template <
 		typename TKey,
-		typename TComp = std::less<TKey>
+		typename TComp = less<TKey>
 	>
 		class BinaryHeapQueue
 	{
@@ -45,7 +34,7 @@ namespace algs {
 			capacity = 0;
 		}
 
-		std::size_t size() const
+		size_t size() const
 		{
 			return count;
 		}
@@ -105,8 +94,8 @@ namespace algs {
 
 	private:
 		TComp comparer;
-		std::size_t count;
-		std::size_t capacity;
+		size_t count;
+		size_t capacity;
 		TKey* heap;
 
 	};
@@ -187,6 +176,5 @@ namespace algs {
 			index = parentIndex;
 			parentIndex = parent(index);
 		}
-
 	}
 }
