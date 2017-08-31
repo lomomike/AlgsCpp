@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include <iostream>
 #include <utility>
+#include <algorithm>
+#include <queue>
 
 #ifdef min
 #undef min
@@ -140,6 +142,38 @@ public:
 
 		delete keyNode;
 	}
+
+	size_t height() const
+	{
+		std::queue<Node *> queue;
+
+		size_t h = 0;
+		queue.push(root);
+
+		while (true)
+		{
+			int nodeCount = queue.size();
+
+			if (nodeCount == 0)
+				return h;
+			else
+				h++;
+
+			while (nodeCount > 0)
+			{
+				Node * node = queue.back();
+				queue.pop();
+
+				if (node->left != nullptr)
+					queue.push(node->left);
+
+				if (node->right != nullptr)
+					queue.push(node->right);
+
+				nodeCount--;
+			}
+		}
+	}
 	
 
 private:
@@ -171,6 +205,13 @@ private:
 	Node* findMaxNode(Node* node);
 
 	void transplant(Node * prevNode, Node * newNode);
+
+	size_t height(Node * nodePtr) const
+	{
+		if (nodePtr == nullptr)
+			return 0;
+		return 1 + std::max(height(nodePtr->left), height(nodePtr->right));
+	}
 
 
 private:

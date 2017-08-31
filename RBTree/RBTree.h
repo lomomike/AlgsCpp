@@ -9,6 +9,7 @@
 #endif
 
 #include <iostream>
+#include <algorithm>
 
 namespace algs {
 
@@ -28,38 +29,65 @@ namespace algs {
 			Node* left;
 			Node* right;
 
-			TKey& key;
-			TValue& value;
+			std::pair<TKey, TValue> keyValue;
+
 			bool color;
 
-			Node(TKey& key, TValue& value) :
+			Node() :
 				parent(nullptr),
 				left(nullptr),
 				right(nullptr),
-				key(key),
-				value(value),
+				keyValue(std::pair<TKey, TValue>()),
 				color(red)
 			{
 			}
+
+			Node(const TKey& key, const TValue& value) :
+				parent(nullptr),
+				left(nullptr),
+				right(nullptr),
+				keyValue(std::make_pair(key, value)),
+				color(red)
+			{
+			}
+
+			TKey key() const { return keyValue.first; }
+
+			TValue value() const { return keyValue.second; }
 		};
 
 	public:
 
 		explicit RBTree() :
 			comp(),
-			root(nullptr)
+			root(nullptr),
+			sentinel(new Node)
 		{
+			sentinel->left =
+				sentinel->right =
+				sentinel->parent = sentinel;
+			sentinel->color = black;
+
+			root = sentinel;
 		}
 
 		explicit RBTree(const TComp& comp) :
 			comp(comp),
-			root(nullptr)
+			root(nullptr),
+			sentinel(new Node)
 		{
+			sentinel->left =
+				sentinel->right =
+				sentinel->parent = sentinel;
+			sentinel->color = black;
+
+			root = sentinel;
 		}
 
 		~RBTree()
 		{
 			clean(root);
+			delete sentinel;
 		}
 
 		TValue& find(const TKey& key) const;
@@ -72,9 +100,16 @@ namespace algs {
 
 		TKey& predecessor(const TKey& key) const;
 
+		void insert(const TKey& key, const TValue& value);
+
 		void print() const
 		{
 			print(root);
+		}
+
+		size_t height() const
+		{
+			return height(this->root);
 		}
 
 	private:
@@ -86,7 +121,7 @@ namespace algs {
 
 		void clean(Node* node)
 		{
-			if (node == nullptr)
+			if (node == sentinel)
 				return;
 
 			clean(node->left);
@@ -103,9 +138,24 @@ namespace algs {
 
 		void print(Node* nodePtr) const;
 
+		void insertFixup(Node* nodePtr);
+
+		void rotateLeft(Node * nodePtr);
+
+		void rotateRight(Node * nodePtr);
+
+		size_t height(Node * nodePtr) const
+		{
+			if (nodePtr == sentinel)
+				return 0;
+			return 1 + std::max(height(nodePtr->left), height(nodePtr->right));
+		}
+
 	private:
 		TComp comp;
 		Node * root;
+		Node * sentinel;
+
 	};
 
 	template <typename TKey, typename TValue, typename TComp>
@@ -113,30 +163,30 @@ namespace algs {
 	{
 		Node* ptr = findNode(key);
 
-		if (ptr == nullptr)
+		if (ptr == sentinel)
 			throw std::exception("Cannot find node");
 
-		return ptr->value;
+		return ptr->value();
 	}
 
 	template <typename TKey, typename TValue, typename TComp>
 	std::pair<TKey&, TValue&> RBTree<TKey, TValue, TComp>::min() const
 	{
 		Node* minNode = findMinNode(this->root);
-		if (minNode == nullptr)
+		if (minNode == sentinel)
 			throw std::exception("Cannot find node");
 
-		return std::make_pair(minNode->key, minNode->value);
+		return std::make_pair(minNode->key(), minNode->value());
 	}
 
 	template <typename TKey, typename TValue, typename TComp>
 	std::pair<TKey&, TValue&> RBTree<TKey, TValue, TComp>::max() const
 	{
 		Node* maxNode = findMaxNode(this->root);
-		if (maxNode == nullptr)
+		if (maxNode == sentinel)
 			throw std::exception("Cannot find node");
 
-		return std::make_pair(maxNode->key, maxNode->value);
+		return std::make_pair(maxNode->key(), maxNode->value());
 	}
 
 	template <typename TKey, typename TValue, typename TComp>
@@ -144,27 +194,27 @@ namespace algs {
 	{
 		Node* keyNode = findNode(key);
 
-		if (keyNode == nullptr)
+		if (keyNode == sentinel)
 			throw std::exception("Cannot find node");
 
-		if (keyNode->right != nullptr)
+		if (keyNode->right != sentinel)
 		{
 			Node* ptr = findMinNode(keyNode->right);
-			return ptr->key;
+			return ptr->key();
 		}
 
 		Node* ptr = keyNode->parent;
 
-		while (ptr != nullptr && keyNode == ptr->right)
+		while (ptr != sentinel && keyNode == ptr->right)
 		{
 			keyNode = ptr;
 			ptr = ptr->parent;
 		}
 
-		if (ptr == nullptr)
+		if (ptr == sentinel)
 			throw std::exception("Cannot find successor");
 
-		return ptr->key;
+		return ptr->key();
 	}
 
 	template <typename TKey, typename TValue, typename TComp>
@@ -172,27 +222,67 @@ namespace algs {
 	{
 		Node* keyNode = findNode(key);
 
-		if (keyNode == nullptr)
+		if (keyNode == sentinel)
 			throw std::exception("Cannot find node");
 
-		if (keyNode->left != nullptr)
+		if (keyNode->left != sentinel)
 		{
 			Node* ptr = findMaxNode(keyNode->left);
-			return ptr->key;
+			return ptr->key();
 		}
 
 		Node* ptr = keyNode->parent;
 
-		while (ptr != nullptr && keyNode == ptr->left)
+		while (ptr != sentinel && keyNode == ptr->left)
 		{
 			keyNode = ptr;
 			ptr = ptr->parent;
 		}
 
-		if (ptr == nullptr)
+		if (ptr == sentinel)
 			throw std::exception("Cannot find predecessor");
 
-		return ptr->key;
+		return ptr->key();
+	}
+
+	template <typename TKey, typename TValue, typename TComp>
+	void RBTree<TKey, TValue, TComp>::insert(const TKey& key, const TValue& value)
+	{
+		Node * newNode = new Node(key, value);
+		newNode->left = newNode->right = sentinel;
+
+		Node *tmp = sentinel;
+		Node *current = root;
+
+		while (current != sentinel)
+		{
+			tmp = current;
+
+			if (this->comp(key, current->key()))
+			{
+				current = current->left;
+			}
+			else
+			{
+				current = current->right;
+			}
+		}
+
+		newNode->parent = tmp;
+		if (tmp == sentinel)
+		{
+			root = newNode;
+		}
+		else if (comp(key, tmp->key()))
+		{
+			tmp->left = newNode;
+		}
+		else
+		{
+			tmp->right = newNode;
+		}
+
+		insertFixup(newNode);
 	}
 
 	template <typename TKey, typename TValue, typename TComp>
@@ -201,7 +291,7 @@ namespace algs {
 	{
 		Node* ptr = node;
 
-		while (ptr->left != nullptr)
+		while (ptr->left != sentinel)
 		{
 			ptr = ptr->left;
 		}
@@ -215,7 +305,7 @@ namespace algs {
 	{
 		Node* ptr = node;
 
-		while (ptr->right != nullptr)
+		while (ptr->right != sentinel)
 		{
 			ptr = ptr->right;
 		}
@@ -229,9 +319,9 @@ namespace algs {
 	{
 		Node * ptr = root;
 
-		while (ptr != nullptr && ptr->key != key)
+		while (ptr != sentinel && ptr->key() != key)
 		{
-			if (comp(key, ptr->key))
+			if (comp(key, ptr->key()))
 			{
 				ptr = ptr->left;
 			}
@@ -247,13 +337,112 @@ namespace algs {
 	template <typename TKey, typename TValue, typename TComp>
 	void RBTree<TKey, TValue, TComp>::print(Node* node) const
 	{
-		if (node == nullptr)
+		if (node == sentinel)
 			return;
 
 		print(node->left);
-		std::cout << node->key << " (" << node->value << ") ";
+		std::cout << node->key() << " (" << node->value() << ") ";
 		print(node->right);
 	}
 
+	template <typename TKey, typename TValue, typename TComp>
+	void RBTree<TKey, TValue, TComp>::insertFixup(Node* nodePtr)
+	{
+		while (nodePtr->parent->color == red)
+		{
+			if (nodePtr->parent == nodePtr->parent->parent->left)
+			{
+				Node * tmp = nodePtr->parent->parent->right;
+				if (tmp->color == red) // Case 1.
+				{
+					nodePtr->parent->color = black;
+					tmp->color = black;
+					nodePtr->parent->parent->color = red;
+					nodePtr = nodePtr->parent->parent;
+				}
+				else 
+				{
+					if (nodePtr == nodePtr->parent->right) // Case 2
+					{
+						nodePtr = nodePtr->parent;
+						rotateLeft(nodePtr);
+					}
+
+					// Case 3
+					nodePtr->parent->color = black;
+					nodePtr->parent->parent->color = red;
+					rotateRight(nodePtr->parent->parent);
+				}
+			}
+			else
+			{
+				Node * tmp = nodePtr->parent->parent->left;
+				if (tmp->color == red) // Case 1.
+				{
+					nodePtr->parent->color = black;
+					tmp->color = black;
+					nodePtr->parent->parent->color = red;
+					nodePtr = nodePtr->parent->parent;
+				}
+				else
+				{
+					if (nodePtr == nodePtr->parent->left) // Case 2
+					{
+						nodePtr = nodePtr->parent;
+						rotateRight(nodePtr);
+					}
+
+					// Case 3
+					nodePtr->parent->color = black;
+					nodePtr->parent->parent->color = red;
+					rotateLeft(nodePtr->parent->parent);
+				}
+			}
+		}
+
+		root->color = black;
+	}
+
+	template <typename TKey, typename TValue, typename TComp>
+	void RBTree<TKey, TValue, TComp>::rotateLeft(Node* nodePtr)
+	{
+		Node * tmp = nodePtr->right;
+		nodePtr->right = tmp->left;
+
+		if (tmp->left != sentinel)
+			tmp->left->parent = nodePtr;
+
+		tmp->parent = nodePtr->parent;
+		if (nodePtr->parent == sentinel)
+			root = tmp;
+		else if (nodePtr == nodePtr->parent->left)
+			nodePtr->parent->left = tmp;
+		else 
+			nodePtr->parent->right = tmp;
+
+		tmp->left = nodePtr;
+		nodePtr->parent = tmp;
+	}
+
+	template <typename TKey, typename TValue, typename TComp>
+	void RBTree<TKey, TValue, TComp>::rotateRight(Node* nodePtr)
+	{
+		Node * tmp = nodePtr->left;
+		nodePtr->left = tmp->right;
+
+		if (tmp->right != sentinel)
+			tmp->right->parent = nodePtr;
+
+		tmp->parent = nodePtr->parent;
+		if (nodePtr->parent == sentinel)
+			root = tmp;
+		else if (nodePtr == nodePtr->parent->left)
+			nodePtr->parent->left = tmp;
+		else
+			nodePtr->parent->right = tmp;
+
+		tmp->right = nodePtr;
+		nodePtr->parent = tmp;
+	}
 }
 
