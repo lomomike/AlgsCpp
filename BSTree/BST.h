@@ -145,6 +145,9 @@ public:
 
 	size_t height() const
 	{
+		if (root == nullptr)
+			return 0;
+
 		std::queue<Node *> queue;
 
 		size_t h = 0;

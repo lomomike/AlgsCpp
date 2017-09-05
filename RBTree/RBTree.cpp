@@ -26,7 +26,16 @@ int main()
 	}
 
 	cout << endl << "RB Tree Height " << rb_tree.height() << endl;
-	cout << endl << "BST Tree Height " << bst.height() << endl;
+	cout << "BST Tree Height " << bst.height() << endl;
+	
+	for (int x = 100 * 1000; x > 50 * 1000; x--)
+	{
+		rb_tree.remove(x);
+		bst.remove(x);
+	}
+
+	cout << endl << "RB Tree Height " << rb_tree.height() << endl;
+	cout << "BST Tree Height " << bst.height() << endl;
 
 	return 0;
 }
