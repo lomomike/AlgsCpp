@@ -348,27 +348,43 @@ namespace algs {
 	template <typename TKey, typename TValue, typename TComp>
 	void RBTree<TKey, TValue, TComp>::insertFixup(Node* nodePtr)
 	{
-		while (nodePtr->parent->color == red)
+		while (nodePtr->parent->color == red) // "Отец" - красный
 		{
 			if (nodePtr->parent == nodePtr->parent->parent->left)
 			{
 				Node * tmp = nodePtr->parent->parent->right;
-				if (tmp->color == red) // Case 1.
+				if (tmp->color == red) 
 				{
+					// Случай 1.
+					// "Дядя" узла nodePtr красный
+
+					// Меняем цве "отца" и "дяди" на черный
 					nodePtr->parent->color = black;
 					tmp->color = black;
+
+					// Меняем цвет "дедушки" на красный и переходим к нему на следующей итерации.
 					nodePtr->parent->parent->color = red;
 					nodePtr = nodePtr->parent->parent;
 				}
 				else 
 				{
-					if (nodePtr == nodePtr->parent->right) // Case 2
+					// "Дядя" узла nodePtr черный
+
+					if (nodePtr == nodePtr->parent->right)
 					{
+						// Случай 2.
+						// "Дядя" узла nodePtr черный, nodePtr - правый потомок
+						// Делаем поворот влево, сводя к случаю 3.
+
 						nodePtr = nodePtr->parent;
 						rotateLeft(nodePtr);
 					}
 
-					// Case 3
+					// Случай 3.
+					// "Дядя" узла nodePtr черный, nodePtr - левый потомок
+
+					// "Отец" становится черным, а "дедушка" красным.
+					// Затем созраняем свойста RB правым поворотом.
 					nodePtr->parent->color = black;
 					nodePtr->parent->parent->color = red;
 					rotateRight(nodePtr->parent->parent);
@@ -376,6 +392,8 @@ namespace algs {
 			}
 			else
 			{
+				// Те же самые ри случая, симметричные первой вертве.
+
 				Node * tmp = nodePtr->parent->parent->left;
 				if (tmp->color == red) // Case 1.
 				{
