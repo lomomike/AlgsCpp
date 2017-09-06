@@ -15,15 +15,23 @@
 namespace algs {
 
 	template <
+		typename TKey1,
+		typename TValue1,
+		typename TComp1
+	>
+	class RBTreeVisualizer;
+
+	template <
 		typename TKey,
 		typename TValue,
 		typename TComp = std::less<TKey>
 	>
-		class RBTree
+	class RBTree
 	{
 		static constexpr bool black = false;
 		static constexpr bool red = true;
 		
+	public:
 		struct Node
 		{
 			Node* parent;
@@ -55,9 +63,23 @@ namespace algs {
 			TKey key() const { return keyValue.first; }
 
 			TValue value() const { return keyValue.second; }
+
+			template <
+				typename TKey1,
+				typename TValue1,
+				typename TComp1 = std::less<TKey1>
+			>
+			friend class RBTreeVisuzlizer;
 		};
 
 	public:
+
+		template <
+			typename TKey1,
+			typename TValue1,
+			typename TComp1 = std::less<TKey1>
+		>
+		friend class RBTreeVisuzlizer;
 
 		explicit RBTree() :
 			comp(),
@@ -158,7 +180,7 @@ namespace algs {
 			return 1 + std::max(height(nodePtr->left), height(nodePtr->right));
 		}
 
-	private:
+	public:
 		TComp comp;
 		Node * root;
 		Node * sentinel;
