@@ -6,13 +6,12 @@
 
 namespace algs
 {
-
 	using namespace std;
 
 	template <
 		typename TKey,
 		typename TValue,
-		typename TComp = std::less<TKey>
+		typename TComp
 	>
 	class RBTreeVisualizer
 	{
