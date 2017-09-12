@@ -33,6 +33,9 @@
     <ClInclude Include="RandomizedBST.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RandomizedBSTVisualizer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

@@ -146,6 +146,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RandomizedBST.h" />
+    <ClInclude Include="RandomizedBSTVisualizer.h" />
     <ClInclude Include="RBTree.h" />
     <ClInclude Include="RBTreeVisuzlizer.h" />
     <ClInclude Include="stdafx.h" />
