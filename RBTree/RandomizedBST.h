@@ -23,6 +23,7 @@ namespace algs {
 	>
 	class RandomizedBSTVisualizer;
 
+	// https://habrahabr.ru/post/145388/
 	template <
 		typename TKey,
 		typename TValue,
@@ -146,38 +147,7 @@ namespace algs {
 
 		void remove(const TKey& key)
 		{
-			Node *keyNode = findNode(key);
-
-			if (keyNode == nullptr)
-				return;
-
-			if (keyNode->left == nullptr)
-			{
-				// Нет левого потомка - подставляем правый
-				transplant(keyNode, keyNode->right);
-			}
-			else if (keyNode->right == nullptr)
-			{
-				// Есть левый, но нет правого - подставляем левый
-				transplant(keyNode, keyNode->left);
-			}
-			else
-			{
-				// Есть оба потомка. Ищем следующий за удаляемым элемент и подставляем его.
-				Node * minimum = findMinNode(keyNode->right);
-				if (minimum->parent != keyNode)
-				{
-					transplant(minimum, minimum->right);
-					minimum->right = keyNode->right;
-					minimum->right->parent = minimum;
-				}
-
-				transplant(keyNode, minimum);
-				minimum->left = keyNode->left;
-				minimum->left->parent = minimum;
-			}
-
-			delete keyNode;
+			root = removeImpl(root, key);
 		}
 
 		size_t height() const
@@ -244,8 +214,6 @@ namespace algs {
 
 		Node* findMaxNode(Node* node);
 
-		void transplant(Node * prevNode, Node * newNode);
-
 		static int getSize(Node *node)
 		{
 			if (node == nullptr) return 0;
@@ -304,6 +272,30 @@ namespace algs {
 			}
 
 			fixSize(node);
+			return node;
+		}
+
+		Node *join(Node *left, Node *right);
+
+		Node *removeImpl(Node *node, const TKey& key)
+		{
+			if (!node)
+				return node;
+
+			if (node->key() == key)
+			{
+				Node *joinedNode = join(node->left, node->right);
+				delete node;
+				return joinedNode;
+			}
+			else if (comp(key, node->key()))
+			{
+				node->left = removeImpl(node->left, key);
+			}
+			else
+			{
+				node->right = removeImpl(node->right, key);
+			}
 			return node;
 		}
 
@@ -400,21 +392,6 @@ namespace algs {
 	}
 
 	template <typename TKey, typename TValue, typename TComp>
-	void RandomizedBST<TKey, TValue, TComp>::transplant(Node* prevNode, Node* newNode)
-	{
-		if (prevNode->parent == nullptr)
-			root = newNode;
-		else if (prevNode == prevNode->parent->left)
-			prevNode->parent->left = newNode;
-		else
-			prevNode->parent->right = newNode;
-
-		if (newNode != nullptr)
-			newNode->parent = prevNode->parent;
-
-	}
-
-	template <typename TKey, typename TValue, typename TComp>
 	typename RandomizedBST<TKey, TValue, TComp>::Node* RandomizedBST<TKey, TValue, TComp>::rotateRight(Node* nodePtr)
 	{
 		Node * tmp = nodePtr->left;
@@ -462,4 +439,36 @@ namespace algs {
 		return tmp;
 	}
 
+	template <typename TKey, typename TValue, typename TComp>
+	typename RandomizedBST<TKey, TValue, TComp>::Node* RandomizedBST<TKey, TValue, TComp>::join(Node* left, Node* right)
+	{
+		if (left == nullptr)
+			return right;
+
+		if (right == nullptr)
+			return left;
+
+		if (rand() % (left->size + right->size) < left->size)
+		{
+			Node *joinedNode = join(left->right, right);
+			if (joinedNode != nullptr)
+			{
+				joinedNode->parent = left;
+			}
+			left->right = joinedNode;
+			fixSize(left);
+			return left;
+		}
+		else
+		{
+			Node *joinedNode = join(left, right->left);
+			if (joinedNode != nullptr)
+			{
+				joinedNode->parent = right;
+			}
+			right->left = joinedNode;
+			fixSize(right);
+			return right;
+		}
+	}
 }

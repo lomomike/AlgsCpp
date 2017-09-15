@@ -35,7 +35,7 @@ int main()
 
 	cout << "RB Tree Height " << rb_tree.height() << endl;
 
-	for (int k = 0; k < 3; k++)
+	for (int k = 0; k < 2; k++)
 	{
 		algs::RandomizedBST<int, int> rnd_tree;
 		algs::RandomizedBSTVisualizer<int, int, less<int>> rnd_visualizer(rnd_tree);
@@ -46,6 +46,14 @@ int main()
 		}
 
 		rnd_visualizer.saveDot(string("rndTree") + to_string(k) + ".dot");
+		cout << "Randomized Tree Height " << rnd_tree.height() << endl;
+
+		for (int x = 100; x > 50; x--)
+		{
+			rnd_tree.remove(x);
+		}
+
+		rnd_visualizer.saveDot(string("rndTree_delete") + to_string(k) + ".dot");
 		cout << "Randomized Tree Height " << rnd_tree.height() << endl;
 	}
 	
