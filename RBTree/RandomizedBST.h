@@ -1,8 +1,4 @@
 #pragma once
-#include <iostream>
-#include <utility>
-#include <algorithm>
-#include <queue>
 
 #ifdef min
 #undef min
@@ -11,6 +7,12 @@
 #ifdef max
 #undef max
 #endif
+
+#include <iostream>
+#include <utility>
+#include <algorithm>
+#include <queue>
+
 
 namespace algs {
 
@@ -26,14 +28,14 @@ namespace algs {
 		typename TValue,
 		typename TComp = std::less<TKey>
 	>
-	struct RandomizedBST
+	class RandomizedBST
 	{
 		template <
 			typename TKey1,
 			typename TValue1,
 			typename TComp1
 		>
-		class RandomizedBSTVisualizer;
+		friend class RandomizedBSTVisualizer;
 
 		struct Node
 		{
@@ -214,7 +216,7 @@ namespace algs {
 		}
 
 
-	//private:
+	private:
 		void clean(Node* node)
 		{
 			if (node == nullptr)
@@ -313,7 +315,7 @@ namespace algs {
 		}
 
 
-	//private:
+	private:
 		Node * root;
 		TComp comp;
 	};

@@ -15,20 +15,16 @@ namespace algs
 	>
 	class RandomizedBSTVisualizer
 	{
-		static constexpr bool black = false;
-		static constexpr bool red = true;
-
 		using NodePtr = typename RandomizedBST<TKey, TValue, TComp>::Node*;
 
 	public:
-
-
+		
 		explicit RandomizedBSTVisualizer(const RandomizedBST<TKey, TValue, TComp>& tree)
 			: tree(tree), num_of_sentinels(0)
 		{
 		}
 
-		void saveDot(const std::string& fileName) const
+		void saveDot(const string& fileName) const
 		{
 			num_of_sentinels = 0;
 			ofstream file(fileName);
