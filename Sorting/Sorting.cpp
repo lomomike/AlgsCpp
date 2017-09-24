@@ -1,8 +1,6 @@
 // Sorting.cpp : Defines the entry point for the console application.
 //
 
-#include "stdafx.h"
-
 #include <vector>
 #include <iostream>
 
@@ -10,7 +8,7 @@ using namespace std;
 
 void shellSort(vector<int>& v)
 {
-	size_t n = std::size(v);
+	size_t n = v.size();
 
 	size_t h = 1;
 	while (h < n / 3)
@@ -79,7 +77,7 @@ void shell_sort(RandomAccessIterator first, RandomAccessIterator last, Compare c
 
 bool isSorted(const vector<int>& v)
 {
-	size_t lastIndex = std::size(v) - 1;
+	size_t lastIndex = v.size() - 1;
 
 	for (auto i = 0; i < lastIndex; i++)
 	{

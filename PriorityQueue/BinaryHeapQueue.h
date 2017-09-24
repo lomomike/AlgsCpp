@@ -119,7 +119,7 @@ namespace algs {
 	TKey& BinaryHeapQueue<TKey, TComp>::top()
 	{
 		if (count < 1)
-			throw std::exception("Queue is empty");
+			throw std::exception();
 
 		return heap[0];
 	}
@@ -128,7 +128,7 @@ namespace algs {
 	void BinaryHeapQueue<TKey, TComp>::pop()
 	{
 		if (count < 1)
-			throw std::exception("Queue is empty");
+			throw std::exception();
 
 		swap(heap[0], heap[count - 1]);
 		count--;
