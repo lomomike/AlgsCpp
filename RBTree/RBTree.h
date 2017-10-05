@@ -107,9 +107,9 @@ namespace algs {
 
 		const TValue& find(const TKey& key) const;
 
-		std::pair<TKey&, TValue&> min() const;
+		std::pair<TKey, TValue> min() const;
 
-		std::pair<TKey&, TValue&> max() const;
+		std::pair<TKey, TValue> max() const;
 
 		TKey& successor(const TKey& key) const;
 
@@ -191,21 +191,21 @@ namespace algs {
 	}
 
 	template <typename TKey, typename TValue, typename TComp>
-	std::pair<TKey&, TValue&> RBTree<TKey, TValue, TComp>::min() const
+	std::pair<TKey, TValue> RBTree<TKey, TValue, TComp>::min() const
 	{
 		Node* minNode = findMinNode(this->root);
 		if (minNode == sentinel)
-			throw std::exception("Cannot find node");
+			throw std::exception();
 
 		return std::make_pair(minNode->key(), minNode->value());
 	}
 
 	template <typename TKey, typename TValue, typename TComp>
-	std::pair<TKey&, TValue&> RBTree<TKey, TValue, TComp>::max() const
+	std::pair<TKey, TValue> RBTree<TKey, TValue, TComp>::max() const
 	{
 		Node* maxNode = findMaxNode(this->root);
 		if (maxNode == sentinel)
-			throw std::exception("Cannot find node");
+			throw std::exception();
 
 		return std::make_pair(maxNode->key(), maxNode->value());
 	}
@@ -423,43 +423,43 @@ namespace algs {
 	template <typename TKey, typename TValue, typename TComp>
 	void RBTree<TKey, TValue, TComp>::insertFixup(Node* nodePtr)
 	{
-		while (nodePtr->parent->color == red) // "Отец" - красный
+		while (nodePtr->parent->color == red) // "пїЅпїЅпїЅпїЅ" - пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 		{
 			if (nodePtr->parent == nodePtr->parent->parent->left)
 			{
 				Node * tmp = nodePtr->parent->parent->right;
 				if (tmp->color == red) 
 				{
-					// Случай 1.
-					// "Дядя" узла nodePtr красный
+					// пїЅпїЅпїЅпїЅпїЅпїЅ 1.
+					// "пїЅпїЅпїЅпїЅ" пїЅпїЅпїЅпїЅ nodePtr пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
-					// Меняем цве "отца" и "дяди" на черный
+					// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ "пїЅпїЅпїЅпїЅ" пїЅ "пїЅпїЅпїЅпїЅ" пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 					nodePtr->parent->color = black;
 					tmp->color = black;
 
-					// Меняем цвет "дедушки" на красный и переходим к нему на следующей итерации.
+					// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ" пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
 					nodePtr->parent->parent->color = red;
 					nodePtr = nodePtr->parent->parent;
 				}
 				else 
 				{
-					// "Дядя" узла nodePtr черный
+					// "пїЅпїЅпїЅпїЅ" пїЅпїЅпїЅпїЅ nodePtr пїЅпїЅпїЅпїЅпїЅпїЅ
 
 					if (nodePtr == nodePtr->parent->right)
 					{
-						// Случай 2.
-						// "Дядя" узла nodePtr черный, nodePtr - правый потомок
-						// Делаем поворот влево, сводя к случаю 3.
+						// пїЅпїЅпїЅпїЅпїЅпїЅ 2.
+						// "пїЅпїЅпїЅпїЅ" пїЅпїЅпїЅпїЅ nodePtr пїЅпїЅпїЅпїЅпїЅпїЅ, nodePtr - пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+						// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ 3.
 
 						nodePtr = nodePtr->parent;
 						rotateLeft(nodePtr);
 					}
 
-					// Случай 3.
-					// "Дядя" узла nodePtr черный, nodePtr - левый потомок
+					// пїЅпїЅпїЅпїЅпїЅпїЅ 3.
+					// "пїЅпїЅпїЅпїЅ" пїЅпїЅпїЅпїЅ nodePtr пїЅпїЅпїЅпїЅпїЅпїЅ, nodePtr - пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
-					// "Отец" становится черным, а "дедушка" красным.
-					// Затем созраняем свойста RB правым поворотом.
+					// "пїЅпїЅпїЅпїЅ" пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅ "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ" пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
+					// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ RB пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
 					nodePtr->parent->color = black;
 					nodePtr->parent->parent->color = red;
 					rotateRight(nodePtr->parent->parent);
@@ -467,7 +467,7 @@ namespace algs {
 			}
 			else
 			{
-				// Те же самые ри случая, симметричные первой вертве.
+				// пїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.
 
 				Node * tmp = nodePtr->parent->parent->left;
 				if (tmp->color == red) // Case 1.
