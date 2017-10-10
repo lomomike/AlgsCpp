@@ -111,9 +111,9 @@ namespace algs {
 
 		std::pair<TKey, TValue> max() const;
 
-		TKey& successor(const TKey& key) const;
+		TKey successor(const TKey& key) const;
 
-		TKey& predecessor(const TKey& key) const;
+		TKey predecessor(const TKey& key) const;
 
 		void insert(const TKey& key, const TValue& value);
 
@@ -211,12 +211,12 @@ namespace algs {
 	}
 
 	template <typename TKey, typename TValue, typename TComp>
-	TKey& RBTree<TKey, TValue, TComp>::successor(const TKey& key) const
+	TKey RBTree<TKey, TValue, TComp>::successor(const TKey& key) const
 	{
 		Node* keyNode = findNode(key);
 
 		if (keyNode == sentinel)
-			throw std::exception("Cannot find node");
+			throw std::exception();
 
 		if (keyNode->right != sentinel)
 		{
@@ -233,18 +233,18 @@ namespace algs {
 		}
 
 		if (ptr == sentinel)
-			throw std::exception("Cannot find successor");
+			throw std::exception();
 
 		return ptr->key();
 	}
 
 	template <typename TKey, typename TValue, typename TComp>
-	TKey& RBTree<TKey, TValue, TComp>::predecessor(const TKey& key) const
+	TKey RBTree<TKey, TValue, TComp>::predecessor(const TKey& key) const
 	{
 		Node* keyNode = findNode(key);
 
 		if (keyNode == sentinel)
-			throw std::exception("Cannot find node");
+			throw std::exception();
 
 		if (keyNode->left != sentinel)
 		{
@@ -261,7 +261,7 @@ namespace algs {
 		}
 
 		if (ptr == sentinel)
-			throw std::exception("Cannot find predecessor");
+			throw std::exception();
 
 		return ptr->key();
 	}
