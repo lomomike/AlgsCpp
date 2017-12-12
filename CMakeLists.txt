@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 14)
 add_subdirectory(lib/googletest)
 include_directories(lib/googletest/googletest/include)
 
+enable_testing()
+
 add_subdirectory(test)
 
 set(RBTREE_SOURCES
