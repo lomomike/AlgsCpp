@@ -6,6 +6,10 @@ set(CMAKE_CXX_STANDARD 14)
 add_subdirectory(lib/googletest)
 include_directories(lib/googletest/googletest/include)
 
+if (MSVC)
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+endif (MSVC)
+
 enable_testing()
 
 add_subdirectory(test)
